@@ -104,11 +104,38 @@ public class MySAXHandler extends DefaultHandler {
 
     public static void main (String[] args){
 
-        //let the user choose an xml file to parse
-        final JFileChooser fileChooser = new JFileChooser();
-        int returnValue = fileChooser.showOpenDialog(null);
-        String inputFileName = fileChooser.getSelectedFile().getAbsolutePath();
-        //String inputFileName = "/Users/teaching/desktop/xid-17243045_2.xml";
+        /*
+        to avoid GUI errors, any rendering (drawing calls such as a dialog) need to happen *asynchronously*
+        use the same pattern we use for the GUI in-class example - that is put your code inside and call SwingUtilities.invokeLater
+         */
+        Runnable r = new Runnable() {
+
+            @Override
+            public void run() {
+                JFileChooser jfc = new JFileChooser();
+                jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                if( jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION ){
+                    //call parseXML (defined below) that will do the rest of the work
+                    //note this is *After* the user has chosen a filename!
+                    parseXML(jfc.getSelectedFile().getAbsolutePath());
+                }else{
+                    System.out.println("User did not choose a file. Quitting.");
+                }
+            }
+        };
+        SwingUtilities.invokeLater(r); //this will display the dialog *when the framework is ready*
+
+
+    }
+
+    /**
+     * this is called after the user selects a filename. It does the rest of the work, i.e. setting up the parser
+     * and starting the parsing process. All the rest of the work happens between the SAX parsing framework and
+     * the handler methods defined at the top of this file!
+     * @param inputFileName
+     */
+    private static void parseXML(String inputFileName){
+
         System.out.println("user chose to parse file: " + inputFileName);
 
         /*
