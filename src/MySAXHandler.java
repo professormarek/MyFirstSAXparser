@@ -1,5 +1,9 @@
 /**
  * This program demonstrates parsing an XML document using the SAX-style parser.
+ * Exercises:
+ * 1) print out only accession numbers encountered as attributes within SequenceLocation elements
+ * 2) print out only the values of CitationTextElement
+ * 3) count to make sure that the number of element starting tags is the same as element ending tags
  */
 
 //import xml libraries
@@ -22,6 +26,8 @@ as long as that object implements the ContentHandler interface
 public class MySAXHandler extends DefaultHandler {
     //declare a variable to store the count of elements that are in the document
     private int elementCounter = 0;
+    //a variable to act as a buffer and store text that is encountered between element tags
+    private StringBuffer elementTextBuffer = new StringBuffer();
 
     /*
     let's override the "hook" methods in the framework that get called by the parser when
@@ -58,6 +64,42 @@ public class MySAXHandler extends DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes attributes){
         //let's start by counting the number of elements we've encountered
         elementCounter++;
+        //let's log the name of the element that we have reached
+        System.out.println("Start of element " + localName + " was reached. This is the " + elementCounter + "th element");
+        //empty the buffer
+        elementTextBuffer.setLength(0);
+
+        //let's traverse and print the Attributes
+        for(int i = 0; i < attributes.getLength(); i++){
+            System.out.println("Attribute " + i + " is " + attributes.getLocalName(i) + "="+attributes.getValue(i));
+        }
+    }
+
+    /**
+     * this method is called whenever ordinary text characters are encountered between element tags
+     * @param text this is the text itself
+     * @param begin indicates the beginning of the text
+     * @param length end of the text
+     */
+    public void characters(char[] text, int begin, int length){
+        //handle the characters encountered by storing them in the buffer
+        elementTextBuffer.append(text, begin, length);
+    }
+
+    /**
+     * again we're passed the same information to endElement as startElement minus Attributes
+     * because Attributes are only seen in the opening tag, and never the closing tag...
+     * @param uri
+     * @param localName
+     * @param qName
+     */
+    public void endElement(String uri, String localName, String qName){
+
+        //do some processing if the element contained any text
+        //in this case simply print the text, but you can do whatever you imagine
+        if(elementTextBuffer.length() > 0){
+            System.out.println("Text for element: " + localName + " is " + elementTextBuffer.toString());
+        }
     }
 
     public static void main (String[] args){
@@ -66,6 +108,7 @@ public class MySAXHandler extends DefaultHandler {
         final JFileChooser fileChooser = new JFileChooser();
         int returnValue = fileChooser.showOpenDialog(null);
         String inputFileName = fileChooser.getSelectedFile().getAbsolutePath();
+        //String inputFileName = "/Users/teaching/desktop/xid-17243045_2.xml";
         System.out.println("user chose to parse file: " + inputFileName);
 
         /*
