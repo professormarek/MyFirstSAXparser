@@ -3,6 +3,7 @@
  */
 
 //import xml libraries
+import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
@@ -19,6 +20,8 @@ SAXparser expects and will call the callback methods in whichever object you tel
 as long as that object implements the ContentHandler interface
  */
 public class MySAXHandler extends DefaultHandler {
+    //declare a variable to store the count of elements that are in the document
+    private int elementCounter = 0;
 
     /*
     let's override the "hook" methods in the framework that get called by the parser when
@@ -31,7 +34,30 @@ public class MySAXHandler extends DefaultHandler {
      *
      */
     public void startDocument() throws SAXException{
+        //for now just print a debugging statement, but you can do anything you want here!
         System.out.println("The start of the document was reached");
+    }
+
+    /**
+     * this method will be called by the XML reader when the end of the document is reached
+     * @throws SAXException
+     */
+    public void endDocument() throws SAXException{
+        //perform any actions you need to once the end is reached
+        System.out.println("The end of the document was reached");
+        System.out.println("We've seen a total of " + elementCounter + " elements! Cool.");
+    }
+
+    /**
+     * called by the parser whenver the start of an element is reached
+     * @param uri
+     * @param localName this will store the element's name
+     * @param qName
+     * @param attributes treat this as a list of Attributes (may be empty!)
+     */
+    public void startElement(String uri, String localName, String qName, Attributes attributes){
+        //let's start by counting the number of elements we've encountered
+        elementCounter++;
     }
 
     public static void main (String[] args){
